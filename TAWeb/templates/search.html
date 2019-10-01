@@ -1,0 +1,285 @@
+{% extends "base-cdts.html" %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load markdown_filter %}
+{% load search_extras %}
+
+{% block top-settings %}
+    "lngLinks": [{
+    "lang": "{{ LANGUAGE_CODE | SwapLangCode }}",
+    "href": "/{{ LANGUAGE_CODE | SwapLangCode }}/gc",
+    "text": "{{ LANGUAGE_CODE | SwapLangName }}"
+    }],
+    search: false,
+    "breadcrumbs": [{
+    "title": "{% trans 'Home' %}",
+    "href": "https://www.canada.ca/{{ LANGUAGE_CODE }}.html",
+    },{
+    "title": "{% trans 'Open Government' %}",
+    "href": "{% trans 'https://open.canada.ca' %}/{{ LANGUAGE_CODE }}",
+    },{
+    "title": "{% trans 'Open Information' %}",
+    "href": "{% trans 'https://open.canada.ca/en/open-information' %}",
+    }]
+{% endblock %}
+
+{% block custom_page_javascript %}
+    <script src="{% static 'app/form.js' %}"></script>
+{% endblock custom_page_javascript %}
+
+{% block main-content %}
+    {% block main-content-title %}
+        <h1 property="name" id="wb-cont">{% trans "Trade Agreement Procurement Tool Prototype" %}</h1>
+    {% endblock %}
+
+    <section>
+        <div class="row">
+            <div class="col-md-8 col-md-push-4">
+            {# --- Main Column --- #}
+            {% block main-content-content %}
+                <section>
+                {% if alerts|length > 0 %}
+                    <div class="row">
+                        {% autoescape off %}
+                            {% for alert in alerts %}
+                                <div class="alert alert-info">{% trans alert %}</div>
+                            {% endfor %}
+                        {% endautoescape %}
+                    </div>
+                {% endif %}
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <p>{% blocktrans with result_num=results.hits|apnumber result_s=results.hits|pluralize %}Found {{result_num}} record{{result_s}}{% endblocktrans %}</p>
+                    </div>
+                </div>
+                <form action="{% url 'TASearch' %}" id="search_form" method="get" role="form"
+                      class="mrgn-bttm-md form-inline">
+                    <div class="row">
+                        <div class="col-md-7 col-sm-12">
+                            <div class="input-group">
+                                <label for="ta-search-input" class="wb-inv">{% trans 'Search' %}</label>
+                                <input type="text" name="ta-search-input" class="form-control" id="ta-search-input"
+                                       value="{{ search_text }}" placeholder="{% trans 'Search' %}"
+                                       onkeypress="submitFormOnEnter(event)" size="60"/>
+
+                                <span class="input-group-btn">
+                                     <label for="ta-search-button" class="wb-inv">{% trans 'Search' %}</label>
+                                     <button type="button" class="btn btn-primary btn-small form-submit"
+                                             id="ta-search-button"
+                                             onclick="submitForm()">{% trans 'Search' %}
+                                    </button>
+                                </span>
+                            </div>
+                            <div class="input-group hidden">
+                                <input type="text" name="page" class="form-control" id="page" value="{{ currentpage }}">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                {% for doc in results.docs %}
+                    <div class="panel panel-default mrg-tp-sm mrgn-bttm-sm">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-4"><strong>Federal Supply Code: </strong></div>
+                                <div class="col-sm-8">{{ doc.fsc_txt_en | markdown_filter | safe }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>FSC Description:</strong></div>
+                                <div class="col-sm-8"> {{ doc.fsc_desc_txt_en | markdown_filter | safe }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>GSIN: </strong></div>
+                                <div class="col-sm-8">{{ doc.gsin_s_txt_en | markdown_filter | safe }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4"><strong>GSIN Description: </strong></div>
+                                <div class="col-sm-8">{{ doc.gsin_txt_en | markdown_filter | safe }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12"><button type="button" class="btn btn-default">{% trans 'Trade Agreements >>' %}</button></div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {% block main-content-pagination %}
+                    <section>
+                        <ul class="pagination">
+                            {% for pg in pagination %}
+                                {% if pg == 1 %}
+                                    {% if currentpage == 1 %}
+                                        <li class="previous disabled"><a href="#" rel="prev">{% trans 'Previous' %}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="previous"><a href="#" onclick="gotoPage('{{ previous_page }}')">
+                                            {% trans 'Previous' %} <span
+                                                class="wb-inv">Go to page {{ previous_page }}</span></a></li>
+                                    {% endif %}
+                                    <li{% if currentpage == 1 %} class="active" {% endif %}><a href="#"
+                                                                                               onclick="gotoPage('1')">
+                                        1<span class="wb-inv">(current) {% trans 'Go to' %} 1 </span></a></li>
+                                {% elif pg == last_page %}
+                                    <li{% if currentpage == last_page %} class="active" {% endif %}><a
+                                            href="#" onclick="gotoPage('{{ last_page }}')">{{ pg }}
+                                        <span class="wb-inv">(current) {% trans 'Go to' %} 1 </span></a></li>
+                                    {% if currentpage == last_page %}
+                                        <li class="next disabled"><a href="#" rel="next">{% trans 'Next' %}</a></li>
+                                    {% else %}
+                                        <li class="next"><a href="#" onclick="gotoPage('{{ next_page }}')">
+                                            {% trans 'Next' %} <span
+                                                class="wb-inv">Go to page {{ next_page }}</span></a></li>
+                                    {% endif %}
+                                {% elif pg == 0 %}
+                                    <li><a href="#" onclick="">...<span class="wb-inv"></span></a></li>
+                                {% else %}
+                                    <li {% if currentpage == pg %}class="active" {% endif %}>
+                                        <a href="#" onclick="gotoPage('{{ pg }}')">
+                                            {{ pg }} <span
+                                                class="wb-inv">Go to page {{ pg }}</span></a></li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endblock main-content-pagination %}
+            {% endblock main-content-content %}
+            </section>
+            </div>
+            <div class="col-md-4 col-md-pull-8">
+                {% block main-content-sidebar %}{% spaceless %}
+                <aside class="mrgn-tp-lg">
+                    <div class="btn-block">
+                        <div>
+                            <a onclick="clear_facets();" href="#" class="btn btn-default mrgn-bttm-md btn-block"><span
+                                class="glyphicon glyphicon-refresh"></span> {% trans 'Clear all choices' %}</a>
+                        </div>
+                    </div>
+                </aside>
+
+                {# FSC Code Facet #}
+                <details class="panel panel-default mrgn-bttm-0" {% if fsc_selected|length > 0 %}open{% endif %}>
+                    <summary class="panel-heading">
+                        <h5 class="panel-title">{% trans 'FSC' %}</h5>
+                    </summary>
+                    {% if LANGUAGE_CODE == 'fr' %}
+                        {% for k, v in fsc_facets_fr.items %}
+                        {% if v > 0 %}
+                            <li class="list-group-item{% if k in fsc_selected_list %} active{% endif %}">
+                                <div class="checkbox mrgn-tp-0 mrgn-bttm-0 h6">
+                                    <label><input type="checkbox"
+                                             {% if k in fsc_selected_list %} checked="checked"{% endif %}
+                                             onclick='select_facet("{{ k }}", "ta-search-fsc")'
+                                             style="vertical-align:middle;position:relative;top:-1px;" value="{{ k }}"
+                                    > {{ k }} ({{ v }})</label></div>
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for k, v in fsc_facets_en.items %}
+                        {% if v > 0 %}
+                            <li class="list-group-item{% if k in fsc_selected_list %} active{% endif %}">
+                                <div class="checkbox mrgn-tp-0 mrgn-bttm-0 h6">
+                                    <label><input type="checkbox"
+                                             {% if k in fsc_selected_list %} checked="checked"{% endif %}
+                                             onclick='select_facet("{{ k }}", "ta-search-fsc")'
+                                             style="vertical-align:middle;position:relative;top:-1px;" value="{{ k }}"
+                                    > {{ k }} ({{ v }})</label></div>
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </details>
+
+                {# FSC Description #}
+                <details class="panel panel-default mrgn-bttm-0" {% if fsc_desc_selected|length > 0 %}open{% endif %}>
+                    <summary class="panel-heading">
+                        <h5 class="panel-title">{% trans 'FSC Description' %}</h5>
+                    </summary>
+                    {% if LANGUAGE_CODE == 'fr' %}
+                        {% for k, v in fsc_desc_facets_fr.items %}
+                        {% if v > 0 %}
+                            <li class="list-group-item{% if k in fsc_desc_selected_list %} active{% endif %}">
+                                <div class="checkbox mrgn-tp-0 mrgn-bttm-0 h6">
+                                    <label><input type="checkbox"
+                                             {% if k in fsc_desc_selected_list %} checked="checked"{% endif %}
+                                             onclick='select_facet("{{ k }}", "ta-search-fsc-desc")'
+                                             style="vertical-align:middle;position:relative;top:-1px;" value="{{ k }}"
+                                    > {{ k }} ({{ v }})</label></div>
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for k, v in fsc_desc_facets_en.items %}
+                        {% if v > 0 %}
+                            <li class="list-group-item{% if k in fsc_desc_selected_list %} active{% endif %}">
+                                <div class="checkbox mrgn-tp-0 mrgn-bttm-0 h6">
+                                    <label><input type="checkbox"
+                                             {% if k in fsc_desc_selected_list %} checked="checked"{% endif %}
+                                             onclick='select_facet("{{ k }}", "ta-search-fsc-desc")'
+                                             style="vertical-align:middle;position:relative;top:-1px;" value="{{ k }}"
+                                    > {{ k }} ({{ v }})</label></div>
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </details>
+
+                {# GSIN #}
+                <details class="panel panel-default mrgn-bttm-0" {% if gsin_selected|length > 0 %}open{% endif %}>
+                    <summary class="panel-heading">
+                        <h5 class="panel-title">{% trans 'GSIN Code' %}</h5>
+                    </summary>
+                    {% for k, v in gsin_facets.items %}
+                        {% if v > 0 %}
+                            <li class="list-group-item{% if k in gsin_selected_list %} active{% endif %}">
+                                <div class="checkbox mrgn-tp-0 mrgn-bttm-0 h6">
+                                    <label><input type="checkbox"
+                                             {% if k in gsin_selected_list %} checked="checked"{% endif %}
+                                             onclick='select_facet("{{ k }}", "ta-search-fsc-desc")'
+                                             style="vertical-align:middle;position:relative;top:-1px;" value="{{ k }}"
+                                    > {{ k }} ({{ v }})</label></div>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </details>
+
+                {% endspaceless %}
+                {% endblock main-content-sidebar %}
+            </div>
+        </div>
+    </section>
+{% endblock main-content %}
+
+
+{% block pre-footer-settings %}
+    showPostContent: false,
+    showFeedback: false,
+    showShare: false
+{% endblock %}
+
+{% block footer-settings %}
+    "footerSections": [{
+    "href": "{% trans '/en/forms/contact-us' %}",
+    "text": "{% trans 'Open Government Contact' %}"
+    },{
+    "href": "{% trans 'https://www.canada.ca/en/government/dept.html' %}",
+    "text": "{% trans 'Departments and agencies' %}"
+    },{
+    "href": "{% trans 'https://www.canada.ca/en/government/publicservice.html' %}",
+    "text": "{% trans 'Public service and military' %}"
+    },{
+    "href": "{% trans 'http://news.gc.ca/' %}",
+    "text": "{% trans 'News' %}"
+    },{
+    "href": "{% trans 'https://www.canada.ca/en/government/system/laws.html' %}",
+    "text": "{% trans 'Treaties, laws and regulations' %}"
+    },{
+    "href": "{% trans 'https://www.canada.ca/en/transparency/reporting.html' %}",
+    "text": "{% trans 'Government-wide reporting' %}"
+    },{
+    "href": "{% trans 'https://www.canada.ca/en/government/system.html' %}",
+    "text": "{% trans 'How government works' %}"
+    }],
+    "showFeatures": false
+{% endblock %}
