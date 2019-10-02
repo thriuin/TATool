@@ -1,11 +1,14 @@
 from collections import defaultdict
 import csv
+from django.conf import settings
+import os
 import pysolr
 import sys
 
 BULK_SIZE = 100
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TATool.settings')
 
-solr = pysolr.Solr('http://127.0.0.1:8983/solr/core_ocg_ta')
+solr = pysolr.Solr(settings.SOLR_URL)
 solr.delete(q='*:*')
 solr.commit()
 

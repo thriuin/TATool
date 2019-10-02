@@ -20,10 +20,13 @@ from TAWeb.views import TASearchView, TAEvalView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path('search/', TASearchView.as_view(), name='TASearch'),
+    path('eval/', TAEvalView.as_view(), name='TAEval'),
 ]
 
+"""
 urlpatterns += i18n_patterns(
     path('search/', TASearchView.as_view(), name='TASearch'),
     path('eval/', TAEvalView.as_view(), name='TAEval'),
 )
+"""

@@ -52,7 +52,8 @@ class TASearchView(View):
         }
 
     def get(self, request):
-        context = dict(LANGUAGE_CODE=request.LANGUAGE_CODE, )
+        #context = dict(LANGUAGE_CODE=request.LANGUAGE_CODE, )
+        context = dict(LANGUAGE_CODE='en', )
         context["cdts_version"] = settings.CDTS_VERSION
 
         # Get any search terms
