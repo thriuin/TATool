@@ -19,10 +19,12 @@ from django.urls import path
 from TAWeb.views import TASearchView, TAEvalView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('search/', TASearchView.as_view(), name='TASearch'),
-    path('eval/', TAEvalView.as_view(), name='TAEval'),
+    path('', TASearchView.as_view()),
+    path('ta/', TASearchView.as_view()),
+    path('ta/search/', TASearchView.as_view(), name='TASearch'),
+    path('ta/eval/', TAEvalView.as_view(), name='TAEval'),
 ]
+# path('admin/', admin.site.urls),
 
 """
 urlpatterns += i18n_patterns(
