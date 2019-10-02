@@ -128,6 +128,4 @@ dmypy.json
 .pyre/
 
 .idea/
-goods_cleanup.py
-package-lock.json
-simplesurvey.json
+
