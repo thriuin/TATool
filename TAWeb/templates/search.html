@@ -98,7 +98,29 @@
                                 <div class="col-sm-8">{{ doc.gsin_txt_en | markdown_filter | safe }}</div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-12"><button type="button" class="btn btn-default">{% trans 'Trade Agreements >>' %}</button></div>
+                                <ul class="list-unstyled">
+                                    <li>
+                                        <details><summary>{% trans 'Trade Agreements >>' %}</summary>
+                                            <h4>General application</h4>
+                                            <ul>
+                                                <li>NAFTA Annex 1001.1b-1: <b>{{ doc.nafta_s }}</b></li>
+                                                <li>(CCFTA) Annex K bis-01.1-3: <b>{{ doc.chile_s }}</b></li>
+                                                <li>(CCoFTA) Annex 1401-4: <b>{{ doc.colombia_s }}</b></li>
+                                                <li>Honduras (CHFTA) Annex 17.3: <b>{{ doc.honduras_s }}</b></li>
+                                                <li>Panama (CPaFTA) Annex 4: <b>{{ doc.panama_s }}</b></li>
+                                                <li>Peru (CPFTA) Annex 1401. 1-3: <b>{{ doc.peru_s }}</b></li>
+                                                <li>Korea (CKFTA) Annex 14-A: <b>{{ doc.korea_s }}</b></li>
+                                                <li>Ukraine (CUFTA) Annex 10-3: <b>{{ doc.ukraine_s}}</b></li>
+                                                <li>WTO-AGP Canada Annex 1: <b>{{ doc.wtoagp_s }}</b></li>
+                                                <li>CETA Annex 19-4: <b>{{ doc.ceta_s }}</b></li>
+                                                <li>CPTPP Chapter 15-A Section D: <b>{{ doc.cptpp_s }}</b></li>
+                                            </ul>
+                                            <div class="col-sm-12"><button type="button" class="btn btn-default" disabled="disabled">{% trans 'Further details >>' %}</button></div>
+                                        </details>
+
+                                    </li>
+                                </ul>
+
                             </div>
                         </div>
                     </div>
